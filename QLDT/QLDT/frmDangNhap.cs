@@ -1,0 +1,96 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace QLDT
+{
+    public partial class frmDangNhap : Form
+    {
+        public string tendangnhap = "";
+        public string loaitk;
+        public frmDangNhap()
+        {
+            InitializeComponent();
+        }
+
+        private void frmDangNhap_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnThoat_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void btnDangNhap_Click(object sender, EventArgs e)
+        {
+            if (cbbLoaiTaiKhoan.SelectedIndex < 0)
+            {
+                MessageBox.Show("Vui lòng chọn loại tài khoản","Thông báo");
+                return;
+            }
+            if (string.IsNullOrEmpty(txtTenDangNhap.Text))
+            {
+                MessageBox.Show("Vui lòng nhập tên đăng nhập", "Thông báo");
+                txtTenDangNhap.Select();
+                return;
+            }
+            if (string.IsNullOrEmpty(txtMatKhau.Text))
+            {
+                MessageBox.Show("Vui lòng nhập mật khẩu", "Thông báo");
+            }
+            tendangnhap = txtTenDangNhap.Text;
+            loaitk = "";
+            switch (cbbLoaiTaiKhoan.Text)
+            {
+                case "Quản trị viên":
+                    loaitk = "admin";
+                    break;
+                case "Giáo viên":
+                    loaitk = "gv";
+                    break;
+                case "Sinh viên":
+                    loaitk = "sv";
+                    break;
+            }
+            List<CustomParameter> lst = new List<CustomParameter>()
+            {
+                new CustomParameter()
+                {
+                    key = "@loaitaikhoan",
+                    value=loaitk
+                },
+                 new CustomParameter()
+                {
+                    key = "@taikhoan",
+                    value=txtTenDangNhap.Text
+                },
+                  new CustomParameter()
+                {
+                    key = "@matkhau",
+                    value=txtMatKhau.Text
+                },
+            };
+
+            var rs = new Database().SelectData("DangNhap", lst);
+            if (rs.Rows.Count > 0)
+            {
+                this.Hide();
+                frmMain f = new frmMain(loaitk,tendangnhap);
+                f.ShowDialog();
+                this.Show();
+            }
+            else
+            {
+                MessageBox.Show("Vui lòng kiểm tra lại tên đăng nhập hoặc mật khẩu", "Thông báo");
+            }
+        }
+    }
+}
